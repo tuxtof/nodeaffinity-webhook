@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nodeaffinity-webhook
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeaffinity-webhook
+  namespace: nodeaffinity-webhook
+  labels:
+    run: nodeaffinity-webhook
+spec:
+  ports:
+    - name: webhook
+      port: 443
+      targetPort: 443
+  selector:
+    run: nodeaffinity-webhook
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodeaffinity-webhook
+  namespace: nodeaffinity-webhook
+  labels:
+    run: nodeaffinity-webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: nodeaffinity-webhook
+  template:
+    metadata:
+      name: nodeaffinity-webhook
+      labels:
+        run: nodeaffinity-webhook
+    spec:
+      containers:
+        - name: webhook
+          image: tuxtof/nodeaffinity-webhook
+          imagePullPolicy: Always
+          env:
+            - name: PORT
+              value: "443"
+          volumeMounts:
+            - name: webhook-ssl
+              mountPath: /webhook-ssl
+              readOnly: true
+          ports:
+            - containerPort: 443
+              name: webhook
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: webhook
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: webhook-ssl
+          secret:
+            secretName: nodeaffinity-webhook

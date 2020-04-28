@@ -1,0 +1,83 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validating-webhook
+webhooks:
+  - name: validate.nodeaffinity.cluster
+    failurePolicy: Fail
+    clientConfig:
+      service:
+        name: nodeaffinity-webhook
+        namespace: nodeaffinity-webhook
+        path: /validate/pods
+      caBundle: "REPLACE_CERT_HERE"
+    rules:
+      - apiGroups: [""]
+        resources:
+          - "pods"
+        apiVersions:
+          - "*"
+        operations:
+          - CREATE
+          - UPDATE
+        scope: "Namespaced"
+    namespaceSelector:
+      matchExpressions:
+        - key: nodeaffinity
+          operator: Exists
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: mutating-webhook
+  labels:
+    component: mutating-controller
+webhooks:
+  - name: enforced.nodeaffinity.cluster
+    failurePolicy: Fail
+    clientConfig:
+      service:
+        name: nodeaffinity-webhook
+        namespace: nodeaffinity-webhook
+        path: /mutate/enforced-pods
+      caBundle: "REPLACE_CERT_HERE"
+    rules:
+      - apiGroups: [""]
+        resources:
+          - "pods"
+        apiVersions:
+          - "*"
+        operations:
+          - CREATE
+          - UPDATE
+        scope: "Namespaced"
+    namespaceSelector:
+      matchExpressions:
+        - key: nodeaffinity
+          operator: In
+          values:
+            - enforced
+  - name: isolated.nodeaffinity.cluster
+    failurePolicy: Fail
+    clientConfig:
+      service:
+        name: nodeaffinity-webhook
+        namespace: nodeaffinity-webhook
+        path: /mutate/isolated-pods
+      caBundle: "REPLACE_CERT_HERE"
+    rules:
+      - apiGroups: [""]
+        resources:
+          - "pods"
+        apiVersions:
+          - "*"
+        operations:
+          - CREATE
+          - UPDATE
+        scope: "Namespaced"
+    namespaceSelector:
+      matchExpressions:
+        - key: nodeaffinity
+          operator: In
+          values:
+            - isolated
