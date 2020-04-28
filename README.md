@@ -8,7 +8,7 @@ This project is an example of Kubernetes nodeAffinity enforcement based on the d
 kubectl apply -f webhook-base.yaml
 ./gen-self-cert.sh
 ```
-put the output certificate in webhook-configuration.yaml (each REPLACE_CERT_HERE iteration)
+put the output CABundle certificate in webhook-configuration.yaml (each REPLACE_CERT_HERE iteration)
 
 ```bash
 kubectl apply -f webhook-configuration.yaml
