@@ -6,7 +6,7 @@ This project is an example of Kubernetes nodeAffinity enforcement based on the d
 
 ```bash
 kubectl apply -f webhook-base.yaml
-./gen-pki-cert.sh
+./gen-self-cert.sh
 ```
 put the output certificate in webhook-configuration.yaml (each REPLACE_CERT_HERE iteration)
 
